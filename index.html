@@ -14,6 +14,19 @@
     background: #1e1e1e;
     margin: 0 auto;
   }
+  #scoreboard {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 18px;
+    user-select: none;
+    background: rgba(20, 20, 20, 0.6);
+    padding: 8px 12px;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+  }
   #overlay {
     position: fixed;
     top: 0; left: 0;
@@ -54,6 +67,9 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+  <div id="scoreboard">
+    Score: <span id="score">0</span> | Highscore: <span id="highscore">0</span>
+  </div>
   <div id="overlay">
     <h1>Game Over</h1>
     <p id="scoreDisplay"></p>
@@ -67,6 +83,8 @@
     const overlay = document.getElementById('overlay');
     const scoreDisplay = document.getElementById('scoreDisplay');
     const restartBtn = document.getElementById('restartBtn');
+    const scoreEl = document.getElementById('score');
+    const highscoreEl = document.getElementById('highscore');
 
     let W, H;
 
@@ -94,6 +112,7 @@
     let enemies = [];
     let gameOverFlag = false;
     let score = 0;
+    let highscore = 0;
 
     function randomPastelColor() {
       const r = Math.floor(Math.random() * 127 + 128);
@@ -190,7 +209,6 @@
       }
     }
 
-    // Simple AABB collision detection
     function isColliding(a, b) {
       return !(a.x > b.x + b.width ||
                a.x + a.width < b.x ||
@@ -202,6 +220,10 @@
       gameOverFlag = true;
       overlay.style.display = 'flex';
       scoreDisplay.textContent = `Score: ${score}`;
+      if(score > highscore){
+        highscore = score;
+        highscoreEl.textContent = highscore;
+      }
     }
 
     function update() {
@@ -210,7 +232,6 @@
       laneOffset += 10;
       if (laneOffset >= 60) laneOffset = 0;
 
-      // Player input handling
       if (keys['arrowleft'] || keys['a']) {
         player.speedX -= 1;
       }
@@ -230,10 +251,8 @@
       if (player.x < roadMargin) player.x = roadMargin;
       if (player.x + player.width > W - roadMargin) player.x = W - roadMargin - player.width;
 
-      // Spawn enemies occasionally
       if (Math.random() < 0.02) spawnEnemy();
 
-      // Move enemies down and remove if offscreen
       const enemySpeed = 5;
       for (let i = enemies.length - 1; i >= 0; i--) {
         enemies[i].y += enemySpeed;
@@ -242,7 +261,6 @@
         }
       }
 
-      // Check collision with player
       for (let enemy of enemies) {
         if (isColliding(player, enemy)) {
           endGame();
@@ -251,7 +269,8 @@
       }
 
       score++;
-      
+      scoreEl.textContent = score;
+
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, W, H);
 
@@ -280,6 +299,7 @@
       player.x = roadMargin + laneWidth * 2 + laneWidth / 2 - player.width / 2;
       player.y = H - player.height - 50;
       player.speedX = 0;
+      scoreEl.textContent = score;
       update();
     });
 
