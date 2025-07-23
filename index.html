@@ -14,14 +14,59 @@
     background: #1e1e1e;
     margin: 0 auto;
   }
+  #overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    user-select: none;
+    z-index: 9999;
+    text-align: center;
+    padding: 20px;
+  }
+  #overlay h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+  #overlay button {
+    margin-top: 20px;
+    padding: 14px 28px;
+    font-size: 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00cc66, #00994d);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: background 0.3s, transform 0.2s;
+  }
+  #overlay button:hover {
+    background: linear-gradient(135deg, #00a653, #007f3a);
+    transform: translateY(-2px);
+  }
 </style>
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+  <div id="overlay">
+    <h1>Game Over</h1>
+    <p id="scoreDisplay"></p>
+    <button id="restartBtn">Restart</button>
+  </div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+
+    const overlay = document.getElementById('overlay');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const restartBtn = document.getElementById('restartBtn');
 
     let W, H;
 
@@ -47,6 +92,8 @@
     const keys = {};
 
     let enemies = [];
+    let gameOverFlag = false;
+    let score = 0;
 
     function randomPastelColor() {
       const r = Math.floor(Math.random() * 127 + 128);
@@ -143,7 +190,23 @@
       }
     }
 
+    // Simple AABB collision detection
+    function isColliding(a, b) {
+      return !(a.x > b.x + b.width ||
+               a.x + a.width < b.x ||
+               a.y > b.y + b.height ||
+               a.y + a.height < b.y);
+    }
+
+    function endGame() {
+      gameOverFlag = true;
+      overlay.style.display = 'flex';
+      scoreDisplay.textContent = `Score: ${score}`;
+    }
+
     function update() {
+      if (gameOverFlag) return;
+
       laneOffset += 10;
       if (laneOffset >= 60) laneOffset = 0;
 
@@ -179,6 +242,16 @@
         }
       }
 
+      // Check collision with player
+      for (let enemy of enemies) {
+        if (isColliding(player, enemy)) {
+          endGame();
+          break;
+        }
+      }
+
+      score++;
+      
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, W, H);
 
@@ -195,6 +268,19 @@
 
     window.addEventListener('keyup', e => {
       keys[e.key.toLowerCase()] = false;
+    });
+
+    restartBtn.addEventListener('click', () => {
+      if (!gameOverFlag) return;
+      overlay.style.display = 'none';
+      enemies = [];
+      score = 0;
+      gameOverFlag = false;
+      const roadMargin = (W - laneWidth * 5) / 2;
+      player.x = roadMargin + laneWidth * 2 + laneWidth / 2 - player.width / 2;
+      player.y = H - player.height - 50;
+      player.speedX = 0;
+      update();
     });
 
     function init() {
