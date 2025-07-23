@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2D Traffic Racer</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; overflow: hidden; background: #0f0f0f;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  canvas {
+    display: block;
+    background: #1e1e1e;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    // Setup canvas and context
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Resize canvas to full window
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // canvas with dark background
+    function draw() {
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
