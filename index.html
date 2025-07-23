@@ -46,10 +46,8 @@
 
     const keys = {};
 
-    // Enemy cars array
     let enemies = [];
 
-    // Random pastel color generator
     function randomPastelColor() {
       const r = Math.floor(Math.random() * 127 + 128);
       const g = Math.floor(Math.random() * 127 + 128);
@@ -57,7 +55,6 @@
       return `rgb(${r},${g},${b})`;
     }
 
-    // Check if enemy can spawn at position (avoid close spawn vertically)
     function canSpawnAt(x, y, width, height) {
       const minDistanceY = 200;
       for (let enemy of enemies) {
@@ -70,7 +67,6 @@
       return true;
     }
 
-    // Spawn enemy cars randomly in lanes avoiding player lane
     function spawnEnemy() {
       if (enemies.length >= 4) return;
 
@@ -80,7 +76,6 @@
       let width = type === 'truck' ? 70 : 50;
       let height = type === 'truck' ? 160 : 100;
 
-      // Pick a random lane as empty lane to give a gap
       const emptyLane = Math.floor(Math.random() * 5);
 
       let tries = 0;
@@ -94,9 +89,9 @@
 
         const roadMargin = (W - laneWidth * 5) / 2;
         let x = roadMargin + laneIndex * laneWidth + laneWidth / 2 - width / 2;
-        x += (Math.random() * 20) - 10; // small random horizontal offset
+        x += (Math.random() * 20) - 10;
 
-        let y = -height - Math.random() * 300; // spawn above screen randomly
+        let y = -height - Math.random() * 300;
 
         if (canSpawnAt(x, y, width, height)) {
           enemies.push({ x, y, width, height, color: randomPastelColor(), type });
@@ -133,7 +128,6 @@
       ctx.setLineDash([]);
     }
 
-    // Draw rectangle for player and enemies (simplified visuals)
     function drawVehicle(x, y, width, height, color) {
       ctx.fillStyle = color;
       ctx.fillRect(x, y, width, height);
@@ -153,7 +147,7 @@
       laneOffset += 10;
       if (laneOffset >= 60) laneOffset = 0;
 
-      // Handle player input horizontal movement
+      // Player input handling
       if (keys['arrowleft'] || keys['a']) {
         player.speedX -= 1;
       }
@@ -175,6 +169,15 @@
 
       // Spawn enemies occasionally
       if (Math.random() < 0.02) spawnEnemy();
+
+      // Move enemies down and remove if offscreen
+      const enemySpeed = 5;
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        enemies[i].y += enemySpeed;
+        if (enemies[i].y > H) {
+          enemies.splice(i, 1);
+        }
+      }
 
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, W, H);
