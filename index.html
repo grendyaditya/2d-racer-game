@@ -35,21 +35,30 @@
     const laneWidth = 80;
     let laneOffset = 0;
 
-    // Draw road background with 5 lanes and dashed lane lines
+    // Player properties
+    const player = {
+      width: 50,
+      height: 100,
+      x: 0,
+      y: 0,
+      speedX: 0,
+      maxSpeedX: 10
+    };
+
+    // Track keyboard input
+    const keys = {};
+
+    // Draw road background
     function drawRoad() {
-      // Draw road base
       ctx.fillStyle = '#222';
       ctx.fillRect(0, 0, W, H);
 
-      // Calculate road margins so road is centered
       const roadMargin = (W - laneWidth * 5) / 2;
 
-      // Draw side margins (grass or sidewalk)
       ctx.fillStyle = '#666';
       ctx.fillRect(0, 0, roadMargin, H);
       ctx.fillRect(W - roadMargin, 0, roadMargin, H);
 
-      // Draw lane dividers with dash pattern moving downwards
       ctx.strokeStyle = 'white';
       ctx.lineWidth = 4;
       ctx.setLineDash([30, 30]);
@@ -67,34 +76,68 @@
       ctx.setLineDash([]);
     }
 
+    // Draw player car as blue rectangle
     function drawPlayer() {
-      const carWidth = 50;
-      const carHeight = 100;
-      const roadMargin = (W - laneWidth * 5) / 2;
-      const carX = roadMargin + laneWidth * 2 + laneWidth / 2 - carWidth / 2;
-      const carY = H - carHeight - 50;
-
-      // Clear canvas and draw road first
-      ctx.fillStyle = '#1e1e1e';
-      ctx.fillRect(0, 0, W, H);
-
-      drawRoad();
-
-      // Draw player car as simple blue rectangle
       ctx.fillStyle = '#00aaff';
-      ctx.fillRect(carX, carY, carWidth, carHeight);
+      ctx.fillRect(player.x, player.y, player.width, player.height);
     }
 
+    // Update game state
     function update() {
       laneOffset += 10;
       if (laneOffset >= 60) laneOffset = 0;
 
+      // Handle player input for horizontal movement
+      if (keys['arrowleft'] || keys['a']) {
+        player.speedX -= 1;
+      }
+      if (keys['arrowright'] || keys['d']) {
+        player.speedX += 1;
+      }
+      if (!keys['arrowleft'] && !keys['a'] && !keys['arrowright'] && !keys['d']) {
+        player.speedX *= 0.8; // friction
+      }
+
+      // Clamp speed
+      if (player.speedX > player.maxSpeedX) player.speedX = player.maxSpeedX;
+      if (player.speedX < -player.maxSpeedX) player.speedX = -player.maxSpeedX;
+
+      // Update player position
+      player.x += player.speedX;
+
+      const roadMargin = (W - laneWidth * 5) / 2;
+      if (player.x < roadMargin) player.x = roadMargin;
+      if (player.x + player.width > W - roadMargin) player.x = W - roadMargin - player.width;
+
+      // Clear and redraw everything
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fillRect(0, 0, W, H);
+
+      drawRoad();
       drawPlayer();
 
       requestAnimationFrame(update);
     }
 
-    update();
+    // Init player position and start update loop
+    function init() {
+      const roadMargin = (W - laneWidth * 5) / 2;
+      player.x = roadMargin + laneWidth * 2 + laneWidth / 2 - player.width / 2;
+      player.y = H - player.height - 50;
+      player.speedX = 0;
+
+      update();
+    }
+
+    window.addEventListener('keydown', e => {
+      keys[e.key.toLowerCase()] = true;
+    });
+
+    window.addEventListener('keyup', e => {
+      keys[e.key.toLowerCase()] = false;
+    });
+
+    init();
   </script>
 </body>
 </html>
