@@ -20,13 +20,11 @@
   <canvas id="gameCanvas"></canvas>
 
   <script>
-    // Setup canvas and context
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
     let W, H;
 
-    // Resize canvas fullscreen and update W, H vars
     function resize() {
       W = canvas.width = window.innerWidth;
       H = canvas.height = window.innerHeight;
@@ -34,23 +32,69 @@
     resize();
     window.addEventListener('resize', resize);
 
-    // Draw background and player car
+    const laneWidth = 80;
+    let laneOffset = 0;
+
+    // Draw road background with 5 lanes and dashed lane lines
+    function drawRoad() {
+      // Draw road base
+      ctx.fillStyle = '#222';
+      ctx.fillRect(0, 0, W, H);
+
+      // Calculate road margins so road is centered
+      const roadMargin = (W - laneWidth * 5) / 2;
+
+      // Draw side margins (grass or sidewalk)
+      ctx.fillStyle = '#666';
+      ctx.fillRect(0, 0, roadMargin, H);
+      ctx.fillRect(W - roadMargin, 0, roadMargin, H);
+
+      // Draw lane dividers with dash pattern moving downwards
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([30, 30]);
+
+      for (let i = 1; i < 5; i++) {
+        let x = roadMargin + i * laneWidth;
+        ctx.beginPath();
+        for (let y = -30 + laneOffset; y < H; y += 60) {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, y + 30);
+        }
+        ctx.stroke();
+      }
+
+      ctx.setLineDash([]);
+    }
+
     function drawPlayer() {
       const carWidth = 50;
       const carHeight = 100;
-      const carX = W / 2 - carWidth / 2;
+      const roadMargin = (W - laneWidth * 5) / 2;
+      const carX = roadMargin + laneWidth * 2 + laneWidth / 2 - carWidth / 2;
       const carY = H - carHeight - 50;
 
-      // Clear canvas
+      // Clear canvas and draw road first
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, W, H);
 
-      // Draw player car as a simple blue rectangle
+      drawRoad();
+
+      // Draw player car as simple blue rectangle
       ctx.fillStyle = '#00aaff';
       ctx.fillRect(carX, carY, carWidth, carHeight);
     }
 
-    drawPlayer();
+    function update() {
+      laneOffset += 10;
+      if (laneOffset >= 60) laneOffset = 0;
+
+      drawPlayer();
+
+      requestAnimationFrame(update);
+    }
+
+    update();
   </script>
 </body>
 </html>
