@@ -108,6 +108,7 @@
     };
 
     const keys = {};
+    let boosting = false;
 
     let enemies = [];
     let gameOverFlag = false;
@@ -229,7 +230,7 @@
     function update() {
       if (gameOverFlag) return;
 
-      laneOffset += 10;
+      laneOffset += 10 + (boosting ? 10 : 0);
       if (laneOffset >= 60) laneOffset = 0;
 
       if (keys['arrowleft'] || keys['a']) {
@@ -253,7 +254,7 @@
 
       if (Math.random() < 0.02) spawnEnemy();
 
-      const enemySpeed = 5;
+      const enemySpeed = 5 + (boosting ? 5 : 0);
       for (let i = enemies.length - 1; i >= 0; i--) {
         enemies[i].y += enemySpeed;
         if (enemies[i].y > H) {
@@ -283,10 +284,12 @@
 
     window.addEventListener('keydown', e => {
       keys[e.key.toLowerCase()] = true;
+      if(e.key === 'Shift') boosting = true;
     });
 
     window.addEventListener('keyup', e => {
       keys[e.key.toLowerCase()] = false;
+      if(e.key === 'Shift') boosting = false;
     });
 
     restartBtn.addEventListener('click', () => {
