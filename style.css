@@ -1,0 +1,102 @@
+body, html {
+  margin: 0; padding: 0; overflow: hidden; background: #0f0f0f;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+canvas {
+  display: block; background: #1e1e1e; margin: 0 auto;
+}
+#ui, #highscore {
+  position: absolute;
+  left: 20px;
+  color: white;
+  font-size: 18px;
+  user-select: none;
+  z-index: 10;
+  background: rgba(20, 20, 20, 0.6);
+  padding: 8px 12px;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+#ui {
+  top: 10px;
+}
+#highscore {
+  top: 50px;
+  color: #00ff99;
+}
+#instructions {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+  background: rgba(0,0,0,0.5);
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 220px;
+  user-select: none;
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+}
+#instructions p {
+  margin: 0 0 6px;
+}
+#menu {
+  position: absolute;
+  top: 100px;
+  left: 20px;
+  user-select: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#menu button {
+  padding: 10px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: transform 0.2s, background 0.3s;
+}
+#menu button:hover {
+  background: linear-gradient(135deg, #0056b3, #003f7f);
+  transform: translateY(-2px);
+}
+#overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: white; font-size: 24px;
+  user-select: none; z-index: 20;
+  text-align: center;
+  padding: 20px;
+}
+#overlay h1 {
+  font-size: 44px;
+  margin-bottom: 20px;
+}
+#overlay button {
+  margin-top: 20px;
+  padding: 14px 28px;
+  font-size: 20px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #00cc66, #00994d);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: background 0.3s, transform 0.2s;
+}
+#overlay button:hover {
+  background: linear-gradient(135deg, #00a653, #007f3a);
+  transform: translateY(-2px);
+}
