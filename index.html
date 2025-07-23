@@ -24,21 +24,33 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Resize canvas to full window
+    let W, H;
+
+    // Resize canvas fullscreen and update W, H vars
     function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
     }
     resize();
     window.addEventListener('resize', resize);
 
-    // canvas with dark background
-    function draw() {
+    // Draw background and player car
+    function drawPlayer() {
+      const carWidth = 50;
+      const carHeight = 100;
+      const carX = W / 2 - carWidth / 2;
+      const carY = H - carHeight - 50;
+
+      // Clear canvas
       ctx.fillStyle = '#1e1e1e';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, W, H);
+
+      // Draw player car as a simple blue rectangle
+      ctx.fillStyle = '#00aaff';
+      ctx.fillRect(carX, carY, carWidth, carHeight);
     }
 
-    draw();
+    drawPlayer();
   </script>
 </body>
 </html>
