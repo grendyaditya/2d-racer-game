@@ -35,7 +35,6 @@
     const laneWidth = 80;
     let laneOffset = 0;
 
-    // Player properties
     const player = {
       width: 50,
       height: 100,
@@ -45,10 +44,68 @@
       maxSpeedX: 10
     };
 
-    // Track keyboard input
     const keys = {};
 
-    // Draw road background
+    // Enemy cars array
+    let enemies = [];
+
+    // Random pastel color generator
+    function randomPastelColor() {
+      const r = Math.floor(Math.random() * 127 + 128);
+      const g = Math.floor(Math.random() * 127 + 128);
+      const b = Math.floor(Math.random() * 127 + 128);
+      return `rgb(${r},${g},${b})`;
+    }
+
+    // Check if enemy can spawn at position (avoid close spawn vertically)
+    function canSpawnAt(x, y, width, height) {
+      const minDistanceY = 200;
+      for (let enemy of enemies) {
+        let dx = Math.abs(enemy.x - x);
+        let dy = Math.abs(enemy.y - y);
+        if (dx < width && dy < minDistanceY) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Spawn enemy cars randomly in lanes avoiding player lane
+    function spawnEnemy() {
+      if (enemies.length >= 4) return;
+
+      const types = ['car', 'car', 'car', 'truck'];
+      const type = types[Math.floor(Math.random() * types.length)];
+
+      let width = type === 'truck' ? 70 : 50;
+      let height = type === 'truck' ? 160 : 100;
+
+      // Pick a random lane as empty lane to give a gap
+      const emptyLane = Math.floor(Math.random() * 5);
+
+      let tries = 0;
+      while (tries < 15) {
+        let laneIndex = Math.floor(Math.random() * 5);
+
+        if (laneIndex === emptyLane) {
+          tries++;
+          continue;
+        }
+
+        const roadMargin = (W - laneWidth * 5) / 2;
+        let x = roadMargin + laneIndex * laneWidth + laneWidth / 2 - width / 2;
+        x += (Math.random() * 20) - 10; // small random horizontal offset
+
+        let y = -height - Math.random() * 300; // spawn above screen randomly
+
+        if (canSpawnAt(x, y, width, height)) {
+          enemies.push({ x, y, width, height, color: randomPastelColor(), type });
+          break;
+        }
+        tries++;
+      }
+    }
+
     function drawRoad() {
       ctx.fillStyle = '#222';
       ctx.fillRect(0, 0, W, H);
@@ -76,18 +133,27 @@
       ctx.setLineDash([]);
     }
 
-    // Draw player car as blue rectangle
-    function drawPlayer() {
-      ctx.fillStyle = '#00aaff';
-      ctx.fillRect(player.x, player.y, player.width, player.height);
+    // Draw rectangle for player and enemies (simplified visuals)
+    function drawVehicle(x, y, width, height, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, width, height);
     }
 
-    // Update game state
+    function drawPlayer() {
+      drawVehicle(player.x, player.y, player.width, player.height, '#00aaff');
+    }
+
+    function drawEnemies() {
+      for (let enemy of enemies) {
+        drawVehicle(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color);
+      }
+    }
+
     function update() {
       laneOffset += 10;
       if (laneOffset >= 60) laneOffset = 0;
 
-      // Handle player input for horizontal movement
+      // Handle player input horizontal movement
       if (keys['arrowleft'] || keys['a']) {
         player.speedX -= 1;
       }
@@ -95,38 +161,29 @@
         player.speedX += 1;
       }
       if (!keys['arrowleft'] && !keys['a'] && !keys['arrowright'] && !keys['d']) {
-        player.speedX *= 0.8; // friction
+        player.speedX *= 0.8;
       }
 
-      // Clamp speed
       if (player.speedX > player.maxSpeedX) player.speedX = player.maxSpeedX;
       if (player.speedX < -player.maxSpeedX) player.speedX = -player.maxSpeedX;
 
-      // Update player position
       player.x += player.speedX;
 
       const roadMargin = (W - laneWidth * 5) / 2;
       if (player.x < roadMargin) player.x = roadMargin;
       if (player.x + player.width > W - roadMargin) player.x = W - roadMargin - player.width;
 
-      // Clear and redraw everything
+      // Spawn enemies occasionally
+      if (Math.random() < 0.02) spawnEnemy();
+
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, W, H);
 
       drawRoad();
       drawPlayer();
+      drawEnemies();
 
       requestAnimationFrame(update);
-    }
-
-    // Init player position and start update loop
-    function init() {
-      const roadMargin = (W - laneWidth * 5) / 2;
-      player.x = roadMargin + laneWidth * 2 + laneWidth / 2 - player.width / 2;
-      player.y = H - player.height - 50;
-      player.speedX = 0;
-
-      update();
     }
 
     window.addEventListener('keydown', e => {
@@ -136,6 +193,15 @@
     window.addEventListener('keyup', e => {
       keys[e.key.toLowerCase()] = false;
     });
+
+    function init() {
+      const roadMargin = (W - laneWidth * 5) / 2;
+      player.x = roadMargin + laneWidth * 2 + laneWidth / 2 - player.width / 2;
+      player.y = H - player.height - 50;
+      player.speedX = 0;
+
+      update();
+    }
 
     init();
   </script>
